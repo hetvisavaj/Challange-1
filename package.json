@@ -1,0 +1,13 @@
+{
+  "name": "carbon-footprint-tracker",
+  "version": "1.0.0",
+  "description": "EcoSphere carbon footprint tracker web app",
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "jsdom": "^22.0.0"
+  },
+  "type": "module"
+}
