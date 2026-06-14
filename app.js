@@ -233,6 +233,67 @@ const COEFFS = {
 let sessionUser = null;
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Attach event listeners to replace inline handlers for CSP compliance
+  const authForm = document.getElementById('auth-form');
+  if (authForm) {
+    authForm.addEventListener('submit', (e) => {
+      if (typeof handleAuthSubmit === 'function') handleAuthSubmit(e);
+    });
+  }
+
+  const toggleAuthBtn = document.getElementById('btn-toggle-auth');
+  if (toggleAuthBtn) {
+    toggleAuthBtn.addEventListener('click', () => {
+      if (typeof toggleAuthMode === 'function') toggleAuthMode();
+    });
+  }
+
+  const logoutBtn = document.getElementById('btn-logout');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      if (typeof handleLogout === 'function') handleLogout();
+    });
+  }
+
+  // Event delegation for dynamically generated elements
+  const questsGrid = document.getElementById('quests-grid-element');
+  if (questsGrid) {
+    questsGrid.addEventListener('click', (e) => {
+      const btn = e.target.closest('.quest-action-btn');
+      if (btn) {
+        const questId = btn.getAttribute('data-quest-id');
+        if (questId && typeof completeQuest === 'function') {
+          completeQuest(questId);
+        }
+      }
+    });
+  }
+
+  const shopGrid = document.getElementById('shop-items-grid');
+  if (shopGrid) {
+    shopGrid.addEventListener('click', (e) => {
+      const btn = e.target.closest('.shop-buy-btn');
+      if (btn) {
+        const itemId = btn.getAttribute('data-item-id');
+        if (itemId && typeof buyShopItem === 'function') {
+          buyShopItem(itemId);
+        }
+      }
+    });
+  }
+
+  const quizBox = document.getElementById('quiz-question-box');
+  if (quizBox) {
+    quizBox.addEventListener('click', (e) => {
+      const btn = e.target.closest('.btn-try-next');
+      if (btn) {
+        if (typeof tryNextQuizQuestion === 'function') {
+          tryNextQuizQuestion();
+        }
+      }
+    });
+  }
+
   initApp();
 });
 
@@ -1077,7 +1138,7 @@ function renderQuests(filter = 'all') {
       <div class="quest-progress-bar-bg">
         <div class="quest-progress-bar-fill" style="width: ${progressVal}%;"></div>
       </div>
-      <button class="quest-action-btn" onclick="completeQuest('${quest.id}')" ${isCompleted ? 'disabled' : ''}>
+      <button class="quest-action-btn" data-quest-id="${quest.id}" ${isCompleted ? 'disabled' : ''}>
         ${isCompleted ? '<i class="fa-solid fa-circle-check"></i> Claimed' : 'Complete Quest'}
       </button>
     `;
@@ -2136,7 +2197,7 @@ function renderShop() {
           <i class="fa-solid fa-seedling"></i>
           <span>${item.cost} pts</span>
         </div>
-        <button class="${btnClass}" onclick="buyShopItem('${item.id}')" ${disabledAttr}>${btnText}</button>
+        <button class="${btnClass}" data-item-id="${item.id}" ${disabledAttr}>${btnText}</button>
       </div>
     `;
     grid.appendChild(card);
@@ -2261,7 +2322,7 @@ window.submitQuizAnswer = function(idx) {
       <p class="feedback-explanation">
         That wasn't quite right. <strong>Explanation:</strong> ${qObj.exp}
       </p>
-      <button class="btn btn-secondary" style="margin-top: 16px; padding: 6px 12px; font-size: 11px;" onclick="tryNextQuizQuestion()">Try Another Question</button>
+      <button class="btn btn-secondary btn-try-next" style="margin-top: 16px; padding: 6px 12px; font-size: 11px;">Try Another Question</button>
     `;
   }
   box.appendChild(feedback);

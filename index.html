@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>EcoSphere - Track, Reduce, and Gamify Your Carbon Footprint</title>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self'">
   <meta name="description" content="An interactive carbon footprint calculator, gamified eco-quests, dynamic Virtual Forest visualization, and personalized carbon reduction insights. Make a real impact.">
   <!-- Fonts & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -67,7 +67,7 @@
             <div class="badge-sub">Level 3 Warrior</div>
           </div>
         </div>
-        <button class="btn-logout" id="btn-logout" onclick="handleLogout()" title="Log out from your profile">
+        <button class="btn-logout" id="btn-logout" title="Log out from your profile">
           <i class="fa-solid fa-right-from-bracket"></i>
           <span>Log Out</span>
         </button>
@@ -844,7 +844,7 @@
       <h3 id="auth-title">Welcome Back</h3>
       <p id="auth-subtitle" class="section-desc">Log in to track your carbon footprint and manage your forest.</p>
       
-      <form id="auth-form" onsubmit="handleAuthSubmit(event)">
+      <form id="auth-form">
         <div class="form-group" style="margin-bottom: 20px;">
           <label class="form-label" for="auth-username">Username</label>
           <input type="text" id="auth-username" class="auth-input" placeholder="Enter your username" required>
@@ -859,7 +859,7 @@
       
       <div class="auth-toggle">
         <span id="auth-toggle-text">Don't have an account?</span>
-        <button id="btn-toggle-auth" onclick="toggleAuthMode()">Register here</button>
+        <button id="btn-toggle-auth">Register here</button>
       </div>
     </div>
   </div>
