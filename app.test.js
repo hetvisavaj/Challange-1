@@ -1,4 +1,4 @@
-import { state, COEFFS, recalculateEmissions, validateStateSchema } from './app.js';
+import { state, COEFFS, recalculateEmissions, validateStateSchema, escapeHTML } from './app.js';
 
 describe('EcoSphere Carbon Calculations', () => {
   beforeEach(() => {
@@ -76,5 +76,11 @@ describe('EcoSphere Carbon Calculations', () => {
     const invalidState2 = JSON.parse(JSON.stringify(state));
     invalidState2.carbonProfile.energy.renewableShare = 120;
     expect(validateStateSchema(invalidState2)).toBe(false);
+  });
+
+  test('escapeHTML sanitizes inputs correctly', () => {
+    expect(escapeHTML('<div>Hello & Welcome</div>')).toBe('&lt;div&gt;Hello &amp; Welcome&lt;/div&gt;');
+    expect(escapeHTML("John's \"App\"")).toBe('John&#39;s &quot;App&quot;');
+    expect(escapeHTML(123)).toBe(123);
   });
 });

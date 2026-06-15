@@ -2016,6 +2016,19 @@ window.handleAuthSubmit = async function(event) {
     displayAuthError('⚠️ Please fill in all fields.');
     return;
   }
+
+  // Username validation: alphanumeric, 3-16 chars
+  const usernameRegex = /^[a-zA-Z0-9_-]{3,16}$/;
+  if (!usernameRegex.test(username)) {
+    displayAuthError('❌ Username must be 3-16 characters long and contain only letters, numbers, underscores, or hyphens.');
+    return;
+  }
+
+  // Password complexity validation: min 6 characters
+  if (password.length < 6) {
+    displayAuthError('❌ Password must be at least 6 characters long.');
+    return;
+  }
   
   const usersJson = localStorage.getItem('ecosphere_users');
   let users = [];
@@ -2141,6 +2154,19 @@ const LEADERBOARD_WARRIORS = [
   { name: 'Elena Rostova', level: 1, badges: 1, saved: 95, points: 300, isPlayer: false }
 ];
 
+function escapeHTML(str) {
+  if (typeof str !== 'string') return str;
+  return str.replace(/[&<>'"]/g, 
+    tag => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      "'": '&#39;',
+      '"': '&quot;'
+    }[tag] || tag)
+  );
+}
+
 function renderLeaderboard() {
   const body = document.getElementById('leaderboard-body');
   if (!body) return;
@@ -2173,8 +2199,8 @@ function renderLeaderboard() {
       <td><div class="leaderboard-rank">${rankDisplay}</div></td>
       <td>
         <div class="user-col">
-          <div class="avatar">${user.name[0]}</div>
-          <span>${user.name}</span>
+          <div class="avatar">${escapeHTML(user.name[0])}</div>
+          <span>${escapeHTML(user.name)}</span>
         </div>
       </td>
       <td><strong>Lv. ${user.level}</strong></td>
@@ -2521,5 +2547,6 @@ export {
   COEFFS,
   recalculateEmissions,
   recalculateLiveGauge,
-  validateStateSchema
+  validateStateSchema,
+  escapeHTML
 };

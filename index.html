@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>EcoSphere - Track, Reduce, and Gamify Your Carbon Footprint</title>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self'">
   <meta name="description" content="An interactive carbon footprint calculator, gamified eco-quests, dynamic Virtual Forest visualization, and personalized carbon reduction insights. Make a real impact.">
   <!-- Fonts & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -190,7 +190,7 @@
               <div class="chart-content">
                 <div class="chart-svg-container">
                   <!-- Dynamic SVG Donut Chart -->
-                  <svg id="donut-chart" viewBox="0 0 200 200">
+                  <svg id="donut-chart" viewBox="0 0 200 200" aria-label="Carbon emission breakdown donut chart" role="img">
                     <circle cx="100" cy="100" r="70" class="chart-bg-circle"></circle>
                     <g id="donut-segments"></g>
                     <circle cx="100" cy="100" r="50" class="chart-center-circle"></circle>
@@ -213,7 +213,7 @@
               <div class="chart-content">
                 <div class="trend-chart-container">
                   <!-- Dynamic SVG Trend Line Chart -->
-                  <svg id="trend-chart" viewBox="0 0 400 200" preserveAspectRatio="none">
+                  <svg id="trend-chart" viewBox="0 0 400 200" preserveAspectRatio="none" aria-label="Carbon reduction history trend line chart" role="img">
                     <!-- Grid Lines -->
                     <line x1="40" y1="20" x2="380" y2="20" class="trend-grid-line"></line>
                     <line x1="40" y1="70" x2="380" y2="70" class="trend-grid-line"></line>
@@ -280,7 +280,7 @@
                   <p class="form-desc">Transportation is a significant source of carbon. Let's estimate your weekly travel emissions.</p>
                   
                   <div class="form-group">
-                    <label class="form-label-with-val">
+                    <label class="form-label-with-val" for="input-drive">
                       <span>Weekly Driving Distance</span>
                       <span class="range-val" id="val-drive">150 miles</span>
                     </label>
@@ -311,7 +311,7 @@
                   </div>
 
                   <div class="form-group">
-                    <label class="form-label-with-val">
+                    <label class="form-label-with-val" for="input-transit">
                       <span>Public Transit Commute</span>
                       <span class="range-val" id="val-transit">5 hours/wk</span>
                     </label>
@@ -320,7 +320,7 @@
                   </div>
 
                   <div class="form-group">
-                    <label class="form-label-with-val">
+                    <label class="form-label-with-val" for="input-flights">
                       <span>Annual Flights (Short & Long Haul)</span>
                       <span class="range-val" id="val-flights">2 flights</span>
                     </label>
@@ -335,7 +335,7 @@
                   <p class="form-desc">Household electricity, heating, and cooling usage significantly impacts your footprint.</p>
 
                   <div class="form-group">
-                    <label class="form-label-with-val">
+                    <label class="form-label-with-val" for="input-electricity">
                       <span>Monthly Electricity Bill ($)</span>
                       <span class="range-val" id="val-electricity">$100/mo</span>
                     </label>
@@ -362,7 +362,7 @@
                   </div>
 
                   <div class="form-group">
-                    <label class="form-label-with-val">
+                    <label class="form-label-with-val" for="input-renewable">
                       <span>Clean/Renewable Energy Share</span>
                       <span class="range-val" id="val-renewable">10%</span>
                     </label>
@@ -471,7 +471,7 @@
               <p class="section-desc">Interactive carbon projection changes instantly as you adjust input values:</p>
               
               <div class="live-gauge-container">
-                <svg viewBox="0 0 100 100" class="live-gauge">
+                <svg viewBox="0 0 100 100" class="live-gauge" aria-label="Real-time carbon footprint gauge" role="img">
                   <circle cx="50" cy="50" r="40" class="gauge-bg"></circle>
                   <circle cx="50" cy="50" r="40" class="gauge-fill" id="calc-live-fill" style="stroke-dasharray: 251; stroke-dashoffset: 150;"></circle>
                   <text x="50" y="47" class="gauge-text-num" id="calc-live-num">5.4</text>
@@ -572,7 +572,7 @@
               <div class="forest-canvas-container" id="forest-environment">
                 <!-- The entire scene will be generated and animated via JS using custom SVGs.
                      Includes Sky background, sun/moon, interactive clouds, mountains, grass layers, trees, plants, and animals -->
-                <svg id="forest-svg" viewBox="0 0 800 400" width="100%" height="100%">
+                <svg id="forest-svg" viewBox="0 0 800 400" width="100%" height="100%" aria-label="Growing Virtual Forest ecosystem" role="img">
                   <!-- Background Gradients -->
                   <defs>
                     <!-- Sky Gradient -->
@@ -681,40 +681,40 @@
 
               <!-- Sim Group 1: Driving -->
               <div class="sim-group">
-                <div class="sim-label-row">
+                <label class="sim-label-row" for="sim-drive">
                   <span><i class="fa-solid fa-car text-blue"></i> Reduce Weekly Driving</span>
                   <span class="sim-val" id="sim-drive-val">0%</span>
-                </div>
+                </label>
                 <input type="range" min="0" max="100" step="5" value="0" class="input-slider sim-slider" id="sim-drive">
                 <div class="slider-ticks"><span>Keep current</span><span>Reduce 50%</span><span>Stop driving</span></div>
               </div>
 
               <!-- Sim Group 2: Solar Energy -->
               <div class="sim-group">
-                <div class="sim-label-row">
+                <label class="sim-label-row" for="sim-energy">
                   <span><i class="fa-solid fa-solar-panel text-orange"></i> Switch to Green Energy Grid</span>
                   <span class="sim-val" id="sim-energy-val">0%</span>
-                </div>
+                </label>
                 <input type="range" min="0" max="100" step="10" value="0" class="input-slider sim-slider" id="sim-energy">
                 <div class="slider-ticks"><span>Fossil Fuel</span><span>Half Renewable</span><span>100% Clean</span></div>
               </div>
 
               <!-- Sim Group 3: Meatless days -->
               <div class="sim-group">
-                <div class="sim-label-row">
+                <label class="sim-label-row" for="sim-meatless">
                   <span><i class="fa-solid fa-utensils text-green"></i> Add Weekly Meatless Days</span>
                   <span class="sim-val" id="sim-meatless-val">0 days</span>
-                </div>
+                </label>
                 <input type="range" min="0" max="7" step="1" value="0" class="input-slider sim-slider" id="sim-meatless">
                 <div class="slider-ticks"><span>0 days</span><span>3 days</span><span>7 days (Veg)</span></div>
               </div>
 
               <!-- Sim Group 4: Thermostat Adjustment -->
               <div class="sim-group">
-                <div class="sim-label-row">
+                <label class="sim-label-row" for="sim-thermo">
                   <span><i class="fa-solid fa-temperature-half text-teal"></i> Eco-Thermostat Shift (Winter/Summer)</span>
                   <span class="sim-val" id="sim-thermo-val">0 °F</span>
-                </div>
+                </label>
                 <input type="range" min="0" max="8" step="1" value="0" class="input-slider sim-slider" id="sim-thermo">
                 <div class="slider-ticks"><span>Normal temp</span><span>Shift 4°F</span><span>Shift 8°F (Eco max)</span></div>
               </div>
