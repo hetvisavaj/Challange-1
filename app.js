@@ -520,6 +520,42 @@ function setupNavigation() {
 
   // Initialize once on DOM load
   handleRouting();
+
+  // Initialize mobile menu controls
+  setupMobileMenu();
+}
+
+function setupMobileMenu() {
+  const menuToggle = document.getElementById('mobile-menu-toggle');
+  const closeBtn = document.getElementById('btn-close-sidebar');
+  const sidebar = document.querySelector('.sidebar');
+  const backdrop = document.getElementById('sidebar-backdrop');
+  const navItems = document.querySelectorAll('.nav-item');
+
+  if (menuToggle && sidebar && backdrop) {
+    const toggleSidebar = () => {
+      sidebar.classList.toggle('open');
+      backdrop.classList.toggle('open');
+    };
+
+    const closeSidebar = () => {
+      sidebar.classList.remove('open');
+      backdrop.classList.remove('open');
+    };
+
+    menuToggle.addEventListener('click', toggleSidebar);
+    
+    if (closeBtn) {
+      closeBtn.addEventListener('click', closeSidebar);
+    }
+
+    backdrop.addEventListener('click', closeSidebar);
+
+    // Close the sidebar when clicking any navigation link (view changes)
+    navItems.forEach(item => {
+      item.addEventListener('click', closeSidebar);
+    });
+  }
 }
 
 // EMISSION MATHEMATICS

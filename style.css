@@ -218,6 +218,32 @@ button, input, select {
   color: var(--text-muted);
 }
 
+/* MOBILE CONTROLS (HIDDEN BY DEFAULT ON DESKTOP) */
+.mobile-menu-toggle {
+  display: none;
+}
+
+.btn-close-sidebar {
+  display: none;
+}
+
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 99;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 /* MAIN CONTENT AREA */
 .main-content {
   flex-grow: 1;
@@ -2410,52 +2436,119 @@ svg defs {
 }
 
 @media (max-width: 768px) {
-  body {
+  .app-container {
     flex-direction: column;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
   }
   .sidebar {
-    width: 100%;
-    height: auto;
-    border-right: none;
-    border-bottom: 1px solid var(--card-border);
-    padding: 16px;
+    position: fixed;
+    top: 0;
+    left: -280px; /* Hidden offscreen */
+    width: 280px;
+    height: 100vh;
+    z-index: 100;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: none;
+    border-right: 1px solid var(--card-border);
+    display: flex;
+    flex-direction: column;
+    padding: 24px 16px;
+  }
+  .sidebar.open {
+    left: 0;
+    box-shadow: 10px 0 40px rgba(0, 0, 0, 0.65);
   }
   .sidebar-logo {
-    padding-bottom: 16px;
+    padding-bottom: 24px;
+    display: flex;
+    align-items: center;
   }
   .sidebar-nav {
-    flex-direction: row;
-    overflow-x: auto;
-    padding-bottom: 4px;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    gap: 8px;
   }
   .nav-item {
-    padding: 8px 12px;
-    flex-shrink: 0;
+    padding: 12px 16px;
   }
   .nav-item span {
-    display: none;
+    display: inline;
   }
   .sidebar-footer {
-    display: none;
+    display: block;
+  }
+  .mobile-menu-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    color: var(--text-primary);
+    border-radius: 12px;
+    font-size: 20px;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    flex-shrink: 0;
+  }
+  .mobile-menu-toggle:hover {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+  .btn-close-sidebar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--card-border);
+    color: var(--text-secondary);
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-left: auto;
+    transition: var(--transition-smooth);
+  }
+  .btn-close-sidebar:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: var(--accent-red);
+    color: var(--accent-red);
   }
   .main-content {
-    padding: 20px 16px;
+    padding: 24px 16px;
+    height: 100vh;
+    overflow-y: auto;
+    width: 100%;
   }
   .main-header {
-    flex-direction: column;
-    align-items: flex-start;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
     gap: 16px;
+    margin-bottom: 24px;
+  }
+  .header-welcome {
+    grid-column: 2;
   }
   .header-widgets {
+    grid-column: 1 / span 2;
     width: 100%;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
   }
-  .header-widget, .user-level-card {
-    flex-grow: 1;
-    justify-content: center;
+  .user-level-card {
+    grid-column: span 2;
   }
   .metric-grid {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
   .metric-card:last-child {
     grid-column: auto;
@@ -2463,14 +2556,57 @@ svg defs {
   .option-grid.col-4, .option-grid.col-3 {
     grid-template-columns: repeat(2, 1fr);
   }
+  .quests-overview {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .overview-info {
+    max-width: 100%;
+  }
+  .streak-cal-card {
+    width: 100%;
+  }
   .quests-grid {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
   .badges-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .badge-item {
+    padding: 16px 8px;
+  }
+  .badge-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
+  }
+  .forest-layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .forest-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .forest-stats {
+    width: 100%;
+    justify-content: space-around;
+    padding: 8px;
+  }
+  .forest-canvas-container {
+    height: 240px;
+  }
+  .simulator-layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
   }
   .shop-grid {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
   .shop-overview {
     flex-direction: column;
@@ -2482,6 +2618,75 @@ svg defs {
   }
   .points-balance-card {
     width: 100%;
+    justify-content: center;
+  }
+  .leaderboard-table-container {
+    overflow-x: auto;
+  }
+  .leaderboard-table th, 
+  .leaderboard-table td {
+    padding: 10px 8px;
+    font-size: 12px;
+  }
+  .leaderboard-table .avatar {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+  }
+  .leaderboard-table .badge-chips {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+}
+
+@media (max-width: 500px) {
+  .chart-content {
+    flex-direction: column;
+    height: auto;
+    padding: 16px 0;
+    gap: 20px;
+  }
+  .chart-svg-container {
+    width: 150px;
+    height: 150px;
+  }
+  .chart-legend {
+    max-width: 100%;
+    width: 100%;
+  }
+  .calc-steps-indicator {
+    padding: 0;
+    gap: 6px;
+  }
+  .step-num {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+  }
+  .step-label {
+    font-size: 10px;
+  }
+  .calc-step-line {
+    margin-top: -20px;
+  }
+  .calc-live-card {
+    padding: 16px;
+  }
+  .live-gauge-container {
+    width: 140px;
+    height: 140px;
+    margin: 16px 0;
+  }
+  .option-btn {
+    padding: 10px 8px;
+    font-size: 12px;
+    gap: 4px;
+  }
+  .option-btn i {
+    font-size: 16px;
+  }
+  .auth-card {
+    padding: 24px 16px;
   }
 }
 /* AUTH OVERLAY STYLES */

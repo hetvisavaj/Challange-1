@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body class="dark-theme">
   <div class="app-container">
@@ -22,6 +22,9 @@
           <i class="fa-solid fa-leaf"></i>
         </div>
         <span class="logo-text">EcoSphere</span>
+        <button class="btn-close-sidebar" id="btn-close-sidebar" aria-label="Close Navigation">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
       </div>
       
       <nav class="sidebar-nav">
@@ -78,6 +81,9 @@
     <main class="main-content">
       <!-- Top Header -->
       <header class="main-header">
+        <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle Navigation">
+          <i class="fa-solid fa-bars"></i>
+        </button>
         <div class="header-welcome">
           <h1 id="header-title">Welcome Back, Eco Warrior</h1>
           <p class="header-subtitle">Your actions today shape the climate of tomorrow.</p>
@@ -833,6 +839,8 @@
 
       </div>
     </main>
+    <!-- Sidebar Backdrop for Mobile Drawer -->
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
   </div>
   <!-- AUTHENTICATION OVERLAY -->
   <div id="auth-overlay" class="auth-overlay">
