@@ -1,4 +1,5 @@
 // EcoSphere - Carbon Footprint Tracker App Logic
+import { COEFFS } from './config.js';
 
 // STATE MANAGEMENT
 let state = {
@@ -188,47 +189,6 @@ let state = {
   }
 };
 
-// EMISSION COEFFICIENTS
-const COEFFS = {
-  transport: {
-    vehicle: {
-      petrol: 0.404, // kg CO2e per mile (average car/SUV)
-      hybrid: 0.210, // kg CO2e per mile
-      electric: 0.080, // kg CO2e per mile (average grid offset)
-      none: 0.0
-    },
-    transit: 0.150, // kg CO2e per passenger mile (assuming 15 miles/hr average speed)
-    flight: 280 // kg CO2e per flight
-  },
-  energy: {
-    elecMultiplier: 8, // estimated kWh per dollar spent
-    elecEmissionRate: 0.35, // kg CO2e per kWh
-    heating: {
-      gas: 1.2, // tons CO2e per year
-      electric: 0.6, // tons CO2e per year (heat pump)
-      'coal-oil': 2.4 // tons CO2e per year
-    }
-  },
-  diet: {
-    'heavy-meat': 2.5, // tons CO2e per year
-    'low-meat': 1.5, // tons CO2e per year
-    vegetarian: 0.9, // tons CO2e per year
-    vegan: 0.5 // tons CO2e per year
-  },
-  waste: {
-    recycle: {
-      none: 0.8, // tons CO2e per year
-      some: 0.4, // tons CO2e per year
-      full: 0.1 // tons CO2e per year
-    },
-    shopping: {
-      minimal: 0.3, // tons CO2e per year
-      average: 0.7, // tons CO2e per year
-      high: 1.5 // tons CO2e per year
-    }
-  }
-};
-
 // INITIALIZATION
 let sessionUser = null;
 
@@ -337,12 +297,22 @@ function initApp() {
 }
 
 // PERSISTENCE
+/**
+ * Serializes and persists the current player state object into LocalStorage 
+ * under a session-specific user namespace key.
+ * @returns {void}
+ */
 function saveStateToLocalStorage() {
   if (sessionUser) {
     localStorage.setItem(`ecosphere_state_${sessionUser}`, JSON.stringify(state));
   }
 }
 
+/**
+ * Resets all profile carbon parameters, community quests, achievements, and Progress 
+ * state metrics back to standard baseline configurations for new users.
+ * @returns {void}
+ */
 function resetStateForNewUser() {
   state.carbonProfile = {
     transport: {
@@ -387,6 +357,12 @@ function resetStateForNewUser() {
   state.triviaQuiz.completedToday = false;
 }
 
+/**
+ * Validates the loaded state object schema against rigorous type definitions 
+ * and boundary configurations to prevent local storage injection or data corruption.
+ * @param {Object} loadedState - The deserialized state object retrieved from storage.
+ * @returns {boolean} True if the state structure matches validation requirements.
+ */
 function validateStateSchema(loadedState) {
   if (!loadedState || typeof loadedState !== 'object') return false;
   
@@ -464,6 +440,11 @@ function validateStateSchema(loadedState) {
   return true;
 }
 
+/**
+ * Retrieves, parses, upgrades, and validates the session state object 
+ * from local storage namespace, falling back to defaults if corrupt or missing.
+ * @returns {void}
+ */
 function loadStateFromLocalStorage() {
   if (!sessionUser) return;
   const saved = localStorage.getItem(`ecosphere_state_${sessionUser}`);
@@ -805,8 +786,14 @@ function setupSliderListener(sliderId, valId, suffix, stateUpdater, prefix = '')
   if (!slider) return;
   
   slider.addEventListener('input', (e) => {
-    const val = e.target.value;
-    valEl.textContent = `${prefix}${val}${suffix}`;
+    let val = parseFloat(e.target.value);
+    if (isNaN(val) || val < 0) {
+      val = 0;
+    }
+    if (sliderId === 'input-renewable' && val > 100) {
+      val = 100;
+    }
+    if (valEl) valEl.textContent = `${prefix}${val}${suffix}`;
     stateUpdater(val);
   });
 }
@@ -1874,14 +1861,17 @@ function setupSimSlider(id, valId, suffix, callback) {
   if (!slider) return;
 
   slider.addEventListener('input', (e) => {
-    const val = e.target.value;
-    valEl.textContent = `${val}${suffix}`;
+    let val = parseInt(e.target.value);
+    if (isNaN(val) || val < 0) {
+      val = 0;
+    }
+    if (valEl) valEl.textContent = `${val}${suffix}`;
     
     // Update simulation state
-    if (id === 'sim-drive') state.simulator.reduceDrive = parseInt(val);
-    else if (id === 'sim-energy') state.simulator.greenEnergy = parseInt(val);
-    else if (id === 'sim-meatless') state.simulator.meatlessDays = parseInt(val);
-    else if (id === 'sim-thermo') state.simulator.thermoShift = parseInt(val);
+    if (id === 'sim-drive') state.simulator.reduceDrive = Math.min(val, 100);
+    else if (id === 'sim-energy') state.simulator.greenEnergy = Math.min(val, 100);
+    else if (id === 'sim-meatless') state.simulator.meatlessDays = Math.min(val, 7);
+    else if (id === 'sim-thermo') state.simulator.thermoShift = Math.min(val, 8);
     
     callback();
   });

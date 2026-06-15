@@ -338,4 +338,27 @@ describe('EcoSphere Core Suite', () => {
     initApp();
     expect(document.getElementById('auth-overlay').style.display).toBe('none');
   });
+
+  test('loadStateFromLocalStorage handles corrupted JSON gracefully', () => {
+    localStorage.setItem('ecosphere_session', 'corrupted_user');
+    initApp();
+    localStorage.setItem('ecosphere_state_corrupted_user', '{ invalid json {');
+    
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    
+    expect(() => {
+      loadStateFromLocalStorage();
+    }).not.toThrow();
+    
+    expect(consoleErrorSpy).toHaveBeenCalled();
+    consoleErrorSpy.mockRestore();
+  });
+
+  test('dynamic environment configuration uses environment variables or defaults', () => {
+    expect(COEFFS.transport.vehicle.petrol).toBe(0.404);
+    expect(COEFFS.transport.vehicle.hybrid).toBe(0.210);
+    expect(COEFFS.transport.vehicle.electric).toBe(0.080);
+    expect(COEFFS.transport.transit).toBe(0.150);
+    expect(COEFFS.transport.flight).toBe(280);
+  });
 });
