@@ -2514,3 +2514,12 @@ function drawOwl(group) {
   wingR.setAttribute('fill', '#94a3b8');
   group.appendChild(wingR);
 }
+
+// EXPORTS FOR TESTING
+export {
+  state,
+  COEFFS,
+  recalculateEmissions,
+  recalculateLiveGauge,
+  validateStateSchema
+};
