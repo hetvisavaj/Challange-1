@@ -6,6 +6,10 @@
   <title>EcoSphere - Track, Reduce, and Gamify Your Carbon Footprint</title>
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self'">
   <meta name="description" content="An interactive carbon footprint calculator, gamified eco-quests, dynamic Virtual Forest visualization, and personalized carbon reduction insights. Make a real impact.">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="logo.svg">
+  <link rel="apple-touch-icon" href="logo.svg">
+  <meta name="theme-color" content="#10b981">
   <!-- Fonts & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -70,8 +74,8 @@
             <div class="badge-sub">Level 3 Warrior</div>
           </div>
         </div>
-        <button class="btn-logout" id="btn-logout" title="Log out from your profile">
-          <i class="fa-solid fa-right-from-bracket"></i>
+        <button class="btn-logout" id="btn-logout" title="Log out from your profile" aria-label="Log Out">
+          <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
           <span>Log Out</span>
         </button>
       </div>
@@ -290,21 +294,21 @@
 
                   <div class="form-group">
                     <label class="form-label">Primary Vehicle Type</label>
-                    <div class="option-grid col-4">
-                      <button class="option-btn selected" data-value="petrol" data-group="vehicle">
-                        <i class="fa-solid fa-gas-pump"></i>
+                    <div class="option-grid col-4" role="radiogroup" aria-label="Primary Vehicle Type">
+                      <button class="option-btn selected" data-value="petrol" data-group="vehicle" role="radio" aria-checked="true">
+                        <i class="fa-solid fa-gas-pump" aria-hidden="true"></i>
                         <span>Petrol / SUV</span>
                       </button>
-                      <button class="option-btn" data-value="hybrid" data-group="vehicle">
-                        <i class="fa-solid fa-charging-station text-green"></i>
+                      <button class="option-btn" data-value="hybrid" data-group="vehicle" role="radio" aria-checked="false">
+                        <i class="fa-solid fa-charging-station text-green" aria-hidden="true"></i>
                         <span>Hybrid</span>
                       </button>
-                      <button class="option-btn" data-value="electric" data-group="vehicle">
-                        <i class="fa-solid fa-bolt text-teal"></i>
+                      <button class="option-btn" data-value="electric" data-group="vehicle" role="radio" aria-checked="false">
+                        <i class="fa-solid fa-bolt text-teal" aria-hidden="true"></i>
                         <span>Electric</span>
                       </button>
-                      <button class="option-btn" data-value="none" data-group="vehicle">
-                        <i class="fa-solid fa-ban"></i>
+                      <button class="option-btn" data-value="none" data-group="vehicle" role="radio" aria-checked="false">
+                        <i class="fa-solid fa-ban" aria-hidden="true"></i>
                         <span>No Vehicle</span>
                       </button>
                     </div>
@@ -345,17 +349,17 @@
 
                   <div class="form-group">
                     <label class="form-label">Primary Heating Source</label>
-                    <div class="option-grid col-3">
-                      <button class="option-btn selected" data-value="gas" data-group="heating">
-                        <i class="fa-solid fa-fire-flame-simple text-orange"></i>
+                    <div class="option-grid col-3" role="radiogroup" aria-label="Primary Heating Source">
+                      <button class="option-btn selected" data-value="gas" data-group="heating" role="radio" aria-checked="true">
+                        <i class="fa-solid fa-fire-flame-simple text-orange" aria-hidden="true"></i>
                         <span>Natural Gas</span>
                       </button>
-                      <button class="option-btn" data-value="electric" data-group="heating">
-                        <i class="fa-solid fa-temperature-arrow-up text-teal"></i>
+                      <button class="option-btn" data-value="electric" data-group="heating" role="radio" aria-checked="false">
+                        <i class="fa-solid fa-temperature-arrow-up text-teal" aria-hidden="true"></i>
                         <span>Electric / Heat Pump</span>
                       </button>
-                      <button class="option-btn" data-value="coal-oil" data-group="heating">
-                        <i class="fa-solid fa-oil-can"></i>
+                      <button class="option-btn" data-value="coal-oil" data-group="heating" role="radio" aria-checked="false">
+                        <i class="fa-solid fa-oil-can" aria-hidden="true"></i>
                         <span>Heating Oil / Coal</span>
                       </button>
                     </div>
@@ -378,30 +382,30 @@
 
                   <div class="form-group">
                     <label class="form-label">What best describes your diet?</label>
-                    <div class="option-grid col-1">
-                      <button class="option-btn selected text-left" data-value="heavy-meat" data-group="diet">
-                        <i class="fa-solid fa-drumstick-bite text-red"></i>
+                    <div class="option-grid col-1" role="radiogroup" aria-label="Dietary description">
+                      <button class="option-btn selected text-left" data-value="heavy-meat" data-group="diet" role="radio" aria-checked="true">
+                        <i class="fa-solid fa-drumstick-bite text-red" aria-hidden="true"></i>
                         <div>
                           <strong>Frequent Meat Eater</strong>
                           <span class="sub-text">Includes red meat (beef, pork, lamb) multiple times a week.</span>
                         </div>
                       </button>
-                      <button class="option-btn text-left" data-value="low-meat" data-group="diet">
-                        <i class="fa-solid fa-fish text-blue"></i>
+                      <button class="option-btn text-left" data-value="low-meat" data-group="diet" role="radio" aria-checked="false">
+                        <i class="fa-solid fa-fish text-blue" aria-hidden="true"></i>
                         <div>
                           <strong>Low Meat / Flexitarian</strong>
                           <span class="sub-text">Mostly chicken, fish, eggs; rarely eat beef/red meat.</span>
                         </div>
                       </button>
-                      <button class="option-btn text-left" data-value="vegetarian" data-group="diet">
-                        <i class="fa-solid fa-egg text-yellow"></i>
+                      <button class="option-btn text-left" data-value="vegetarian" data-group="diet" role="radio" aria-checked="false">
+                        <i class="fa-solid fa-egg text-yellow" aria-hidden="true"></i>
                         <div>
                           <strong>Vegetarian</strong>
                           <span class="sub-text">No meat/fish, but consume dairy products and eggs.</span>
                         </div>
                       </button>
-                      <button class="option-btn text-left" data-value="vegan" data-group="diet">
-                        <i class="fa-solid fa-carrot text-emerald"></i>
+                      <button class="option-btn text-left" data-value="vegan" data-group="diet" role="radio" aria-checked="false">
+                        <i class="fa-solid fa-carrot text-emerald" aria-hidden="true"></i>
                         <div>
                           <strong>Vegan</strong>
                           <span class="sub-text">Entirely plant-based diet. Excludes all animal products.</span>
@@ -418,17 +422,17 @@
 
                   <div class="form-group">
                     <label class="form-label">How thoroughly do you recycle?</label>
-                    <div class="option-grid col-3">
-                      <button class="option-btn" data-value="none" data-group="recycle">
-                        <i class="fa-solid fa-trash"></i>
+                    <div class="option-grid col-3" role="radiogroup" aria-label="Recycle Habits">
+                      <button class="option-btn" data-value="none" data-group="recycle" role="radio" aria-checked="false">
+                        <i class="fa-solid fa-trash" aria-hidden="true"></i>
                         <span>Do not recycle</span>
                       </button>
-                      <button class="option-btn selected" data-value="some" data-group="recycle">
-                        <i class="fa-solid fa-recycle text-orange"></i>
+                      <button class="option-btn selected" data-value="some" data-group="recycle" role="radio" aria-checked="true">
+                        <i class="fa-solid fa-recycle text-orange" aria-hidden="true"></i>
                         <span>Recycle basic items</span>
                       </button>
-                      <button class="option-btn" data-value="full" data-group="recycle">
-                        <i class="fa-solid fa-tree-deciduous text-green"></i>
+                      <button class="option-btn" data-value="full" data-group="recycle" role="radio" aria-checked="false">
+                        <i class="fa-solid fa-tree-deciduous text-green" aria-hidden="true"></i>
                         <span>Compost & Recycle</span>
                       </button>
                     </div>
@@ -436,17 +440,17 @@
 
                   <div class="form-group">
                     <label class="form-label">Your shopping habits (new items, clothing, electronics)</label>
-                    <div class="option-grid col-3">
-                      <button class="option-btn" data-value="minimal" data-group="shopping">
-                        <i class="fa-solid fa-feather"></i>
+                    <div class="option-grid col-3" role="radiogroup" aria-label="Shopping Habits">
+                      <button class="option-btn" data-value="minimal" data-group="shopping" role="radio" aria-checked="false">
+                        <i class="fa-solid fa-feather" aria-hidden="true"></i>
                         <span>Eco-conscious / Minimalist</span>
                       </button>
-                      <button class="option-btn selected" data-value="average" data-group="shopping">
-                        <i class="fa-solid fa-cart-shopping"></i>
+                      <button class="option-btn selected" data-value="average" data-group="shopping" role="radio" aria-checked="true">
+                        <i class="fa-solid fa-cart-shopping" aria-hidden="true"></i>
                         <span>Average consumer</span>
                       </button>
-                      <button class="option-btn" data-value="high" data-group="shopping">
-                        <i class="fa-solid fa-bag-shopping text-red"></i>
+                      <button class="option-btn" data-value="high" data-group="shopping" role="radio" aria-checked="false">
+                        <i class="fa-solid fa-bag-shopping text-red" aria-hidden="true"></i>
                         <span>Frequent shopper</span>
                       </button>
                     </div>

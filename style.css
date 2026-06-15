@@ -11,8 +11,8 @@
   --glass-blur: blur(16px);
   
   --text-primary: #f0fdf4;
-  --text-secondary: #87a99c;
-  --text-muted: #537064;
+  --text-secondary: #9ec5b5;
+  --text-muted: #75998a;
   
   /* Color Palette */
   --primary: #10b981; /* Emerald */
@@ -2712,4 +2712,17 @@ svg defs {
   font-weight: 600;
   display: none;
   text-align: center;
+}
+
+/* KEYBOARD FOCUS & ACCESSIBILITY STYLES */
+button:focus-visible, 
+input:focus-visible, 
+select:focus-visible {
+  outline: 2px solid var(--accent-mint);
+  outline-offset: 2px;
+}
+
+.input-slider:focus {
+  outline: 2px solid var(--accent-mint);
+  outline-offset: 4px;
 }

@@ -294,6 +294,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(err => console.error('SW registration failed:', err));
+  }
   initApp();
 });
 
@@ -642,9 +645,13 @@ function setupCalculator() {
       const group = btn.dataset.group;
       const value = btn.dataset.value;
       
-      // Toggle selector classes
-      document.querySelectorAll(`.option-btn[data-group="${group}"]`).forEach(b => b.classList.remove('selected'));
+      // Toggle selector classes & accessibility states
+      document.querySelectorAll(`.option-btn[data-group="${group}"]`).forEach(b => {
+        b.classList.remove('selected');
+        b.setAttribute('aria-checked', 'false');
+      });
       btn.classList.add('selected');
+      btn.setAttribute('aria-checked', 'true');
       
       // Update State
       if (group === 'vehicle') state.carbonProfile.transport.vehicleType = value;
@@ -751,7 +758,11 @@ function syncCalculatorInputsWithState() {
   const syncGroupBtn = (group, value) => {
     document.querySelectorAll(`.option-btn[data-group="${group}"]`).forEach(btn => {
       btn.classList.remove('selected');
-      if (btn.dataset.value === value) btn.classList.add('selected');
+      btn.setAttribute('aria-checked', 'false');
+      if (btn.dataset.value === value) {
+        btn.classList.add('selected');
+        btn.setAttribute('aria-checked', 'true');
+      }
     });
   };
 
@@ -1883,9 +1894,12 @@ function runSimulation() {
   const treesCount = Math.round(totalCarbonSaved * 50); // average mature tree absorbs 20kg (0.02 tons) per year. So 50 trees = 1 ton.
 
   // Render projection stats
-  document.getElementById('sim-co2-saved').textContent = `${totalCarbonSaved.toFixed(2)} tons`;
-  document.getElementById('sim-money-saved').textContent = `$${totalMoneySaved.toLocaleString()} / yr`;
-  document.getElementById('sim-trees-saved').textContent = `${treesCount} trees`;
+  const co2SavedEl = document.getElementById('sim-co2-saved');
+  if (co2SavedEl) co2SavedEl.textContent = `${totalCarbonSaved.toFixed(2)} tons`;
+  const moneySavedEl = document.getElementById('sim-money-saved');
+  if (moneySavedEl) moneySavedEl.textContent = `$${totalMoneySaved.toLocaleString()} / yr`;
+  const treesSavedEl = document.getElementById('sim-trees-saved');
+  if (treesSavedEl) treesSavedEl.textContent = `${treesCount} trees`;
 
   // Render Bar Charts
   const currentFill = document.getElementById('sim-bar-current-fill');
@@ -1981,11 +1995,7 @@ window.toggleAuthMode = function() {
   const toggleText = document.getElementById('auth-toggle-text');
   const toggleBtn = document.getElementById('btn-toggle-auth');
   
-  // Register service worker on initial load if supported
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').catch(err => console.error('SW registration failed:', err));
-}
-if (authMode === 'login') {
+  if (authMode === 'login') {
     authMode = 'register';
     title.textContent = 'Create Account';
     subtitle.textContent = 'Register a new Eco Warrior profile with a password.';
@@ -2137,10 +2147,6 @@ window.handleLogout = function() {
   if (submitBtn) submitBtn.textContent = 'Log In';
   if (toggleText) toggleText.textContent = "Don't have an account?";
   if (toggleBtn) toggleBtn.textContent = 'Register here';
-  // Register service worker if supported
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').catch(err => console.error('SW registration failed:', err));
-  }
   // Reset hash to default view without reloading
   window.location.hash = '';
 };
@@ -2548,5 +2554,15 @@ export {
   recalculateEmissions,
   recalculateLiveGauge,
   validateStateSchema,
-  escapeHTML
+  escapeHTML,
+  addXP,
+  addEcoPoints,
+  unlockBadge,
+  isBadgeUnlocked,
+  runSimulation,
+  resetStateForNewUser,
+  loadStateFromLocalStorage,
+  saveStateToLocalStorage,
+  capitalize,
+  getTerrainHeightAndColorAtX
 };
