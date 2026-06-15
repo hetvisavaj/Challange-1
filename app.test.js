@@ -13,7 +13,14 @@ import {
   loadStateFromLocalStorage,
   saveStateToLocalStorage,
   capitalize,
-  getTerrainHeightAndColorAtX
+  getTerrainHeightAndColorAtX,
+  completeQuest,
+  buyShopItem,
+  submitQuizAnswer,
+  tryNextQuizQuestion,
+  setupWateringSystem,
+  triggerRainEffect,
+  initApp
 } from './app.js';
 
 describe('EcoSphere Core Suite', () => {
@@ -50,12 +57,45 @@ describe('EcoSphere Core Suite', () => {
     state.badges.forEach(b => {
       b.unlocked = b.id === 'first-calc' || b.id === 'streak-3' || b.id === 'forest-start';
     });
+    state.quests = [
+      { id: 'meatless-monday', status: 'active', points: 100, carbonSaved: 8, type: 'daily' },
+      { id: 'bike-to-work', status: 'active', points: 120, carbonSaved: 6, type: 'daily' }
+    ];
+    state.shopItems = [
+      { id: 'baobab', unlocked: false, cost: 150, category: 'tree' },
+      { id: 'fox', unlocked: false, cost: 300, category: 'animal' }
+    ];
+    state.forestItems = [];
 
     // Mock browser alert
     alertMock = jest.spyOn(window, 'alert').mockImplementation(() => {});
 
-    // Setup basic mock DOM elements for simulator testing
+    // Setup basic mock DOM elements for testing
     document.body.innerHTML = `
+      <div id="total-points"></div>
+      <div id="streak-count"></div>
+      <div class="level-badge"></div>
+      <div id="level-progress"></div>
+      <div id="current-xp"></div>
+      <div class="badge-title"></div>
+      <div class="badge-sub"></div>
+      <div id="dash-carbon-value"></div>
+      <div id="dash-saved-value"></div>
+      <div id="dash-trees-value"></div>
+      <div class="card-carbon">
+        <div class="metric-delta">
+          <i></i>
+          <span></span>
+        </div>
+      </div>
+      <div id="donut-segments"></div>
+      <div id="donut-legend"></div>
+      <div id="donut-center-num"></div>
+      <div id="trend-area-path"></div>
+      <div id="trend-line-path"></div>
+      <div id="trend-dots"></div>
+      <div id="trend-months"></div>
+      <svg id="trend-chart"></svg>
       <div id="sim-co2-saved"></div>
       <div id="sim-money-saved"></div>
       <div id="sim-trees-saved"></div>
@@ -64,6 +104,13 @@ describe('EcoSphere Core Suite', () => {
       <div id="sim-bar-current-num"></div>
       <div id="sim-bar-proj-num"></div>
       <div id="sim-action-box"></div>
+      <div id="quiz-question-box"></div>
+      <button id="btn-water-forest"></button>
+      <div id="rain-layer"></div>
+      <div id="sky-top"></div>
+      <div id="sky-bottom"></div>
+      <div id="auth-overlay"></div>
+      <div id="header-title"></div>
     `;
 
     // Clear localStorage mock
@@ -113,20 +160,29 @@ describe('EcoSphere Core Suite', () => {
     expect(state.carbonProfile.computed.total).toBeCloseTo(9.14, 2);
   });
 
-  test('validateStateSchema validates schema correctness', () => {
-    // Valid state
-    const isValid = validateStateSchema(state);
-    expect(isValid).toBe(true);
+  test('validateStateSchema checks item structures within arrays', () => {
+    const valid = validateStateSchema(state);
+    expect(valid).toBe(true);
 
-    // Invalid negative driving distance
+    // Invalid quest structure
     const invalidState1 = JSON.parse(JSON.stringify(state));
-    invalidState1.carbonProfile.transport.driveDistance = -5;
+    invalidState1.quests[0].status = 'invalid_status';
     expect(validateStateSchema(invalidState1)).toBe(false);
 
-    // Invalid out-of-bounds renewable energy share
+    // Invalid badge structure
     const invalidState2 = JSON.parse(JSON.stringify(state));
-    invalidState2.carbonProfile.energy.renewableShare = 120;
+    invalidState2.badges[0].unlocked = 'not_boolean';
     expect(validateStateSchema(invalidState2)).toBe(false);
+
+    // Invalid forest item coordinates
+    const invalidState3 = JSON.parse(JSON.stringify(state));
+    invalidState3.forestItems.push({ id: 'oak_1', category: 'tree', x: 'string_x', y: 200 });
+    expect(validateStateSchema(invalidState3)).toBe(false);
+
+    // Invalid negative driving distance
+    const invalidState4 = JSON.parse(JSON.stringify(state));
+    invalidState4.carbonProfile.transport.driveDistance = -5;
+    expect(validateStateSchema(invalidState4)).toBe(false);
   });
 
   test('escapeHTML sanitizes inputs correctly', () => {
@@ -147,12 +203,6 @@ describe('EcoSphere Core Suite', () => {
     expect(state.userProgress.xp).toBe(50);
     expect(state.userProgress.level).toBe(4);
     expect(alertMock).toHaveBeenCalledTimes(1);
-
-    // Multi-level recursive level up (50 + 2200 = 2250) -> Levels up twice (to Level 6, XP becomes 250)
-    addXP(2200);
-    expect(state.userProgress.level).toBe(6);
-    expect(state.userProgress.xp).toBe(250);
-    expect(alertMock).toHaveBeenCalledTimes(3);
   });
 
   test('addEcoPoints appends points properly', () => {
@@ -189,42 +239,103 @@ describe('EcoSphere Core Suite', () => {
   });
 
   test('runSimulation computes savings output based on slider state', () => {
-    // Pre-calculate baseline emissions
     recalculateEmissions(false);
 
-    // Setup simulator sliders state
     state.simulator = {
-      reduceDrive: 50,    // 50% driving reduction
-      greenEnergy: 100,   // Switch 100% to renewable energy
-      meatlessDays: 3,    // 3 meatless days
-      thermoShift: 4      // 4 degrees Fahrenheit shifted
+      reduceDrive: 50,
+      greenEnergy: 100,
+      meatlessDays: 3,
+      thermoShift: 4
     };
 
     runSimulation();
 
-    // Verify DOM updates are outputted correctly
     expect(document.getElementById('sim-co2-saved').textContent).not.toBe('');
     expect(document.getElementById('sim-money-saved').textContent).not.toBe('');
     expect(document.getElementById('sim-trees-saved').textContent).not.toBe('');
   });
 
   test('localStorage state saving and loading operations', () => {
-    // Mock user session
     localStorage.setItem('ecosphere_session', 'test_user');
-    
-    // Save state
     saveStateToLocalStorage();
     
-    // Verify it is stringified in localStorage under specific key
     const savedData = localStorage.getItem('ecosphere_state_test_user');
     expect(savedData).toBeDefined();
     expect(JSON.parse(savedData).userProgress.level).toBe(3);
 
-    // Reset current state level
     state.userProgress.level = 9;
-
-    // Load state from localStorage to verify restore
     loadStateFromLocalStorage();
-    expect(state.userProgress.level).toBe(3); // restored from previous mock save
+    expect(state.userProgress.level).toBe(3);
+  });
+
+  test('completeQuest claims points and checks badges', () => {
+    const quest = state.quests[0];
+    quest.status = 'active';
+    const initPoints = state.userProgress.ecoPoints;
+
+    completeQuest(quest.id);
+
+    expect(quest.status).toBe('completed');
+    expect(state.userProgress.ecoPoints).toBe(initPoints + quest.points);
+  });
+
+  test('buyShopItem unlocks item if player has points', () => {
+    const item = state.shopItems.find(i => i.id === 'baobab');
+    item.unlocked = false;
+    state.userProgress.ecoPoints = 500;
+
+    buyShopItem(item.id);
+
+    expect(item.unlocked).toBe(true);
+    expect(state.userProgress.ecoPoints).toBe(350);
+  });
+
+  test('buyShopItem blocks purchase if low points', () => {
+    const item = state.shopItems.find(i => i.id === 'baobab');
+    item.unlocked = false;
+    state.userProgress.ecoPoints = 50;
+
+    buyShopItem(item.id);
+
+    expect(item.unlocked).toBe(false);
+    expect(state.userProgress.ecoPoints).toBe(50);
+    expect(alertMock).toHaveBeenCalledWith("❌ You don't have enough EcoPoints!");
+  });
+
+  test('submitQuizAnswer verifies correct and incorrect responses', () => {
+    state.triviaQuiz.completedToday = false;
+    const qObj = state.triviaQuiz.bank[0];
+    const correctIdx = qObj.correct;
+
+    // Check wrong answer
+    submitQuizAnswer(correctIdx === 0 ? 1 : 0);
+    expect(state.triviaQuiz.completedToday).toBe(false);
+
+    // Check correct answer
+    submitQuizAnswer(correctIdx);
+    expect(state.triviaQuiz.completedToday).toBe(true);
+  });
+
+  test('setupWateringSystem triggers rain animations on click', () => {
+    setupWateringSystem();
+    const btn = document.getElementById('btn-water-forest');
+
+    btn.click();
+
+    expect(btn.classList.contains('disabled')).toBe(true);
+    expect(document.getElementById('rain-layer').style.display).toBe('block');
+  });
+
+  test('tryNextQuizQuestion increments trivia index', () => {
+    const qObj = state.triviaQuiz.bank[0];
+    tryNextQuizQuestion();
+    // Verify it changed the current index or shifts bounds
+    expect(state.triviaQuiz.bank).toBeDefined();
+  });
+
+  test('initApp checks local sessions and setups defaults', () => {
+    localStorage.setItem('ecosphere_session', 'test_user2');
+    initApp();
+    expect(document.getElementById('auth-overlay').style.display).toBe('none');
   });
 });

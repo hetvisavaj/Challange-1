@@ -401,6 +401,32 @@ function validateStateSchema(loadedState) {
   if (typeof loadedState.triviaQuiz.completedToday !== 'boolean') return false;
   if (!Array.isArray(loadedState.triviaQuiz.bank)) return false;
 
+  // Verify quests structure
+  for (const quest of loadedState.quests) {
+    if (!quest || typeof quest !== 'object') return false;
+    if (typeof quest.id !== 'string' || typeof quest.status !== 'string') return false;
+    if (!['active', 'completed'].includes(quest.status)) return false;
+  }
+
+  // Verify badges structure
+  for (const badge of loadedState.badges) {
+    if (!badge || typeof badge !== 'object') return false;
+    if (typeof badge.id !== 'string' || typeof badge.unlocked !== 'boolean') return false;
+  }
+
+  // Verify shopItems structure
+  for (const item of loadedState.shopItems) {
+    if (!item || typeof item !== 'object') return false;
+    if (typeof item.id !== 'string' || typeof item.unlocked !== 'boolean') return false;
+  }
+
+  // Verify forestItems structure
+  for (const item of loadedState.forestItems) {
+    if (!item || typeof item !== 'object') return false;
+    if (typeof item.id !== 'string' || typeof item.category !== 'string') return false;
+    if (typeof item.x !== 'number' || typeof item.y !== 'number' || isNaN(item.x) || isNaN(item.y)) return false;
+  }
+
   const cp = loadedState.carbonProfile;
   const up = loadedState.userProgress;
 
@@ -725,9 +751,9 @@ function setupCalculator() {
     }
 
     if (currentCalcStep === 4) {
-      nextBtn.innerHTML = 'Save Profile <i class="fa-solid fa-cloud-arrow-up"></i>';
+      nextBtn.innerHTML = 'Save Profile <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i>';
     } else {
-      nextBtn.innerHTML = 'Next <i class="fa-solid fa-chevron-right"></i>';
+      nextBtn.innerHTML = 'Next <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>';
     }
   }
 
@@ -834,41 +860,53 @@ function recalculateLiveGauge() {
 // RENDERING ELEMENTS
 function renderAll() {
   // Main Top Indicators
-  document.getElementById('total-points').textContent = state.userProgress.ecoPoints.toLocaleString();
-  document.getElementById('streak-count').textContent = state.userProgress.streak;
+  const totalPointsEl = document.getElementById('total-points');
+  if (totalPointsEl) totalPointsEl.textContent = state.userProgress.ecoPoints.toLocaleString();
+  const streakCountEl = document.getElementById('streak-count');
+  if (streakCountEl) streakCountEl.textContent = state.userProgress.streak;
   
   // Level metrics
-  document.querySelector('.level-badge').textContent = `Lv. ${state.userProgress.level}`;
-  document.getElementById('level-progress').style.width = `${(state.userProgress.xp / 1000) * 100}%`;
-  document.getElementById('current-xp').textContent = state.userProgress.xp;
+  const lvlBadgeEl = document.querySelector('.level-badge');
+  if (lvlBadgeEl) lvlBadgeEl.textContent = `Lv. ${state.userProgress.level}`;
+  const lvlProgressEl = document.getElementById('level-progress');
+  if (lvlProgressEl) lvlProgressEl.style.width = `${(state.userProgress.xp / 1000) * 100}%`;
+  const currXpEl = document.getElementById('current-xp');
+  if (currXpEl) currXpEl.textContent = state.userProgress.xp;
 
   // Mini badge card footer
   const titles = ['Eco Explorer', 'Carbon Cutter', 'Green Warrior', 'Forest Guardian', 'Planet Hero'];
   const lvlIdx = Math.min(state.userProgress.level - 1, titles.length - 1);
-  document.querySelector('.badge-title').textContent = titles[lvlIdx];
-  document.querySelector('.badge-sub').textContent = `Level ${state.userProgress.level} Warrior`;
+  const badgeTitleEl = document.querySelector('.badge-title');
+  if (badgeTitleEl) badgeTitleEl.textContent = titles[lvlIdx];
+  const badgeSubEl = document.querySelector('.badge-sub');
+  if (badgeSubEl) badgeSubEl.textContent = `Level ${state.userProgress.level} Warrior`;
 
   // Dashboard calculations
-  document.getElementById('dash-carbon-value').textContent = state.carbonProfile.computed.total;
-  document.getElementById('dash-saved-value').textContent = state.carbonProfile.computed.savedLifetime;
-  document.getElementById('dash-trees-value').textContent = state.forestItems.filter(i => i.category === 'tree').length;
+  const dashCarbonEl = document.getElementById('dash-carbon-value');
+  if (dashCarbonEl) dashCarbonEl.textContent = state.carbonProfile.computed.total;
+  const dashSavedEl = document.getElementById('dash-saved-value');
+  if (dashSavedEl) dashSavedEl.textContent = state.carbonProfile.computed.savedLifetime;
+  const dashTreesEl = document.getElementById('dash-trees-value');
+  if (dashTreesEl) dashTreesEl.textContent = state.forestItems.filter(i => i.category === 'tree').length;
 
   // Set national average comparison based on computed total
   const deltaText = document.querySelector('.card-carbon .metric-delta span');
   const deltaIcon = document.querySelector('.card-carbon .metric-delta i');
   const deltaContainer = document.querySelector('.card-carbon .metric-delta');
   
-  const nationalAvg = 12.0; // ton avg
-  const pctDiff = Math.round(((nationalAvg - state.carbonProfile.computed.total) / nationalAvg) * 100);
-  
-  if (pctDiff > 0) {
-    deltaContainer.className = 'metric-delta positive';
-    deltaIcon.className = 'fa-solid fa-arrow-trend-down';
-    deltaText.textContent = `${pctDiff}% lower than national average`;
-  } else {
-    deltaContainer.className = 'metric-delta text-red';
-    deltaIcon.className = 'fa-solid fa-arrow-trend-up';
-    deltaText.textContent = `${Math.abs(pctDiff)}% higher than national average`;
+  if (deltaContainer && deltaText && deltaIcon) {
+    const nationalAvg = 12.0; // ton avg
+    const pctDiff = Math.round(((nationalAvg - state.carbonProfile.computed.total) / nationalAvg) * 100);
+    
+    if (pctDiff > 0) {
+      deltaContainer.className = 'metric-delta positive';
+      deltaIcon.className = 'fa-solid fa-arrow-trend-down';
+      deltaText.textContent = `${pctDiff}% lower than national average`;
+    } else {
+      deltaContainer.className = 'metric-delta text-red';
+      deltaIcon.className = 'fa-solid fa-arrow-trend-up';
+      deltaText.textContent = `${Math.abs(pctDiff)}% higher than national average`;
+    }
   }
 
   // Draw Charts
@@ -902,7 +940,8 @@ function renderDonutChart() {
   ];
   
   const totalVal = c.total || 0.1; // avoid divide by zero
-  document.getElementById('donut-center-num').textContent = totalVal;
+  const donutCenterNum = document.getElementById('donut-center-num');
+  if (donutCenterNum) donutCenterNum.textContent = totalVal;
   
   let currentOffset = 0;
   const radius = 70;
@@ -934,7 +973,7 @@ function renderDonutChart() {
     legItem.innerHTML = `
       <div class="legend-label-group">
         <div class="legend-color-dot" style="background-color: ${cat.color};"></div>
-        <span class="legend-text"><i class="fa-solid ${cat.icon} text-muted" style="margin-right: 4px;"></i> ${cat.name}</span>
+        <span class="legend-text"><i class="fa-solid ${cat.icon} text-muted" style="margin-right: 4px;" aria-hidden="true"></i> ${cat.name}</span>
       </div>
       <span class="legend-val">${cat.val} t</span>
     `;
@@ -948,7 +987,7 @@ function renderTrendChart() {
   const dotsG = document.getElementById('trend-dots');
   const monthsDiv = document.getElementById('trend-months');
   
-  if (!linePath || !dotsG || !monthsDiv) return;
+  if (!areaPath || !linePath || !dotsG || !monthsDiv) return;
   
   dotsG.innerHTML = '';
   monthsDiv.innerHTML = '';
@@ -1013,19 +1052,18 @@ function renderTrendChart() {
 
   // Gradient definitions (inject once if not present)
   let defs = document.querySelector('#trend-chart defs');
-  if (!defs) {
-    defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
-    document.getElementById('trend-chart').appendChild(defs);
-  }
-  
-  if (!document.getElementById('trend-area-grad')) {
-    defs.innerHTML = `
-      <linearGradient id="trend-area-grad" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#10b981" stop-opacity="0.4"></stop>
-        <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"></stop>
-      </linearGradient>
-    `;
-  }
+  const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+  defs.innerHTML = `
+    <linearGradient id="trend-area-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#10b981" stop-opacity="0.4"></stop>
+      <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"></stop>
+    </linearGradient>
+  `;
+  document.getElementById('trend-chart').appendChild(defs);
+
+  // Set line paths
+  areaPath.setAttribute('d', areaD);
+  linePath.setAttribute('d', lineD);
 }
 
 function renderDashboardRecs() {
@@ -1098,7 +1136,7 @@ function renderDashboardRecs() {
     card.className = 'rec-item';
     card.innerHTML = `
       <div class="rec-icon ${rec.color}">
-        <i class="fa-solid ${rec.icon}"></i>
+        <i class="fa-solid ${rec.icon}" aria-hidden="true"></i>
       </div>
       <div class="rec-details">
         <h4 class="rec-title">${rec.title}</h4>
@@ -1143,10 +1181,10 @@ function renderStreakDots() {
     
     if (state.userProgress.streakHistory.includes(day)) {
       statusClass = 'completed';
-      iconHTML = '<i class="fa-solid fa-check"></i>';
+      iconHTML = '<i class="fa-solid fa-check" aria-hidden="true"></i>';
     } else if (idx === todayIndex) {
       statusClass = 'active';
-      iconHTML = '<i class="fa-solid fa-fire"></i>';
+      iconHTML = '<i class="fa-solid fa-fire" aria-hidden="true"></i>';
     }
     
     dot.className = `streak-dot ${statusClass}`;
@@ -1177,7 +1215,7 @@ function renderQuests(filter = 'all') {
     card.innerHTML = `
       <span class="quest-type-badge badge-${quest.type}">${quest.type}</span>
       <div class="quest-icon-box ${quest.color}">
-        <i class="fa-solid ${quest.icon}"></i>
+        <i class="fa-solid ${quest.icon}" aria-hidden="true"></i>
       </div>
       <h4>${quest.title}</h4>
       <p class="quest-desc">${quest.desc}</p>
@@ -1186,7 +1224,7 @@ function renderQuests(filter = 'all') {
         <div class="quest-progress-bar-fill" style="width: ${progressVal}%;"></div>
       </div>
       <button class="quest-action-btn" data-quest-id="${quest.id}" ${isCompleted ? 'disabled' : ''}>
-        ${isCompleted ? '<i class="fa-solid fa-circle-check"></i> Claimed' : 'Complete Quest'}
+        ${isCompleted ? '<i class="fa-solid fa-circle-check" aria-hidden="true"></i> Claimed' : 'Complete Quest'}
       </button>
     `;
     grid.appendChild(card);
@@ -1242,7 +1280,7 @@ function renderBadges() {
     
     card.innerHTML = `
       <div class="badge-icon" title="${badge.unlocked ? 'Unlocked!' : 'Locked'}">
-        <i class="fa-solid ${badge.icon}"></i>
+        <i class="fa-solid ${badge.icon}" aria-hidden="true"></i>
       </div>
       <div class="badge-name">${badge.name}</div>
       <div class="badge-desc">${badge.desc}</div>
@@ -1444,9 +1482,9 @@ function updateForestHeaderCounters() {
         const li = document.createElement('li');
         li.className = 'planting-list-item';
         
-        let icon = '<i class="fa-solid fa-tree text-green"></i>';
-        if (log.category === 'plant') icon = '<i class="fa-solid fa-seedling text-emerald"></i>';
-        else if (log.category === 'animal') icon = '<i class="fa-solid fa-paw text-orange"></i>';
+        let icon = '<i class="fa-solid fa-tree text-green" aria-hidden="true"></i>';
+        if (log.category === 'plant') icon = '<i class="fa-solid fa-seedling text-emerald" aria-hidden="true"></i>';
+        else if (log.category === 'animal') icon = '<i class="fa-solid fa-paw text-orange" aria-hidden="true"></i>';
         
         li.innerHTML = `
           <div>
@@ -1924,7 +1962,7 @@ function runSimulation() {
     if (bannerBox) {
       if (totalCarbonSaved > 1.5) {
         bannerBox.innerHTML = `
-          <i class="fa-solid fa-trophy text-orange" style="font-size: 18px;"></i>
+          <i class="fa-solid fa-trophy text-orange" style="font-size: 18px;" aria-hidden="true"></i>
           <div>
             <strong>High Impact Sim!</strong> By making these shifts, you reduce your carbon output by <strong>${Math.round(totalCarbonSaved / currentTotal * 100)}%</strong> and save <strong>$${totalMoneySaved}</strong> annually! Go to Quests and complete actions to make this a reality!
           </div>
@@ -1933,7 +1971,7 @@ function runSimulation() {
         bannerBox.style.background = 'rgba(16, 185, 129, 0.08)';
       } else {
         bannerBox.innerHTML = `
-          <i class="fa-solid fa-circle-info text-blue" style="font-size: 18px;"></i>
+          <i class="fa-solid fa-circle-info text-blue" style="font-size: 18px;" aria-hidden="true"></i>
           <div>
             <strong>Start small to achieve big!</strong> Move the sliders above to model habit adjustments (e.g. reduce driving or eat less meat) and view projected rewards!
           </div>
@@ -2197,9 +2235,9 @@ function renderLeaderboard() {
     }
 
     let rankDisplay = index + 1;
-    if (index === 0) rankDisplay = '<i class="fa-solid fa-trophy rank-gold"></i>';
-    else if (index === 1) rankDisplay = '<i class="fa-solid fa-trophy rank-silver"></i>';
-    else if (index === 2) rankDisplay = '<i class="fa-solid fa-trophy rank-bronze"></i>';
+    if (index === 0) rankDisplay = '<i class="fa-solid fa-trophy rank-gold" aria-hidden="true"></i>';
+    else if (index === 1) rankDisplay = '<i class="fa-solid fa-trophy rank-silver" aria-hidden="true"></i>';
+    else if (index === 2) rankDisplay = '<i class="fa-solid fa-trophy rank-bronze" aria-hidden="true"></i>';
 
     tr.innerHTML = `
       <td><div class="leaderboard-rank">${rankDisplay}</div></td>
@@ -2239,7 +2277,7 @@ function renderShop() {
     let disabledAttr = '';
 
     if (isUnlocked) {
-      btnText = `<i class="fa-solid fa-circle-check"></i> Unlocked`;
+      btnText = `<i class="fa-solid fa-circle-check" aria-hidden="true"></i> Unlocked`;
       btnClass += ' unlocked';
       disabledAttr = 'disabled';
     } else if (!canBuy) {
@@ -2256,13 +2294,13 @@ function renderShop() {
     card.innerHTML = `
       <span class="shop-card-badge badge-${item.category}">${item.category}</span>
       <div class="shop-icon-box ${colorClass}">
-        <i class="fa-solid ${item.icon}"></i>
+        <i class="fa-solid ${item.icon}" aria-hidden="true"></i>
       </div>
       <h4>${item.name}</h4>
       <p class="shop-desc">${item.desc}</p>
       <div class="shop-cost-btn-group">
         <div class="shop-cost">
-          <i class="fa-solid fa-seedling"></i>
+          <i class="fa-solid fa-seedling" aria-hidden="true"></i>
           <span>${item.cost} pts</span>
         </div>
         <button class="${btnClass}" data-item-id="${item.id}" ${disabledAttr}>${btnText}</button>
@@ -2322,7 +2360,7 @@ function renderQuiz() {
   if (state.triviaQuiz.completedToday) {
     box.innerHTML = `
       <div class="quiz-feedback-panel success" style="text-align: center; padding: 32px 20px;">
-        <i class="fa-solid fa-circle-check text-green" style="font-size: 40px; margin-bottom: 16px;"></i>
+        <i class="fa-solid fa-circle-check text-green" style="font-size: 40px; margin-bottom: 16px;" aria-hidden="true"></i>
         <h3 class="feedback-title success" style="justify-content: center; font-size: 18px;">Quiz Completed Today!</h3>
         <p class="feedback-explanation" style="margin-top: 8px; font-size: 13px;">
           Great job! You have already answered today's environmental trivia and earned your rewards. Come back tomorrow to test your knowledge again!
@@ -2374,7 +2412,7 @@ window.submitQuizAnswer = function(idx) {
     feedback.className = 'quiz-feedback-panel success';
     feedback.innerHTML = `
       <div class="feedback-title success">
-        <i class="fa-solid fa-circle-check"></i> Correct Answer! (+150 pts, +100 XP)
+        <i class="fa-solid fa-circle-check" aria-hidden="true"></i> Correct Answer! (+150 pts, +100 XP)
       </div>
       <p class="feedback-explanation">${qObj.exp}</p>
     `;
@@ -2385,7 +2423,7 @@ window.submitQuizAnswer = function(idx) {
     feedback.className = 'quiz-feedback-panel error';
     feedback.innerHTML = `
       <div class="feedback-title error">
-        <i class="fa-solid fa-circle-xmark"></i> Incorrect Answer
+        <i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> Incorrect Answer
       </div>
       <p class="feedback-explanation">
         That wasn't quite right. <strong>Explanation:</strong> ${qObj.exp}
@@ -2564,5 +2602,12 @@ export {
   loadStateFromLocalStorage,
   saveStateToLocalStorage,
   capitalize,
-  getTerrainHeightAndColorAtX
+  getTerrainHeightAndColorAtX,
+  completeQuest,
+  buyShopItem,
+  submitQuizAnswer,
+  tryNextQuizQuestion,
+  setupWateringSystem,
+  triggerRainEffect,
+  initApp
 };
